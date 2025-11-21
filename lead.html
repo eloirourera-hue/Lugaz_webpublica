@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lugaz - Compara tu Ahorro</title>
+    <link href="style.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Lugaz</h1>
+        <p class="slogan">Descubre tu potencial de ahorro en 30 segundos.</p>
+        
+        <div class="card" id="lead-card">
+            <h2>Paso 1: ¿Dónde te enviamos los resultados?</h2>
+            <form id="leadForm">
+                <input type="email" id="email" name="email" placeholder="Tu Email" required>
+                <input type="tel" id="telefono" name="telefono" placeholder="Teléfono Móvil (ej: 6XX XX XX XX)" pattern="[0-9]{9}" required>
+                <button type="submit" id="submitBtn">Comenzar Ahorro</button>
+                <div id="estado" style="margin-top: 15px; color: #fbbf24; font-weight: 600;"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // En lead.html
+const GOOGLE_SHEET_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyv5MchGwmmU2pG2hUJTVSRXOnbTSVHbExptdNWkTMUx58YTZylo2WkDP2M6wGojJdK/exec";
+        
+        document.getElementById('leadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const telefono = document.getElementById('telefono').value;
+            const estado = document.getElementById('estado');
+            const submitBtn = document.getElementById('submitBtn');
+
+            estado.textContent = "Guardando datos y redirigiendo...";
+            submitBtn.disabled = true;
+
+            try {
+                // Envía el email y teléfono a Google Sheets
+                const url = `${GOOGLE_SHEET_SCRIPT_URL}?action=guardarLead&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(telefono)}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    // Redirige a la página de la factura (index.html, que ahora es el Paso 2)
+                    window.location.href = `index.html?email=${encodeURIComponent(email)}`;
+                } else {
+                    estado.textContent = '❌ Error al guardar datos. Inténtalo de nuevo.';
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                estado.textContent = '❌ Error de conexión. Vuelve a intentarlo.';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
