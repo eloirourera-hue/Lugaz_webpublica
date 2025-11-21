@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lugaz - Comparador de Luz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos integrados (ajustados para ser robustos) */
+        body{margin:0;font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#0f172a,#1e40af,#0ea5e9);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background-attachment: fixed;}
+        .card{background:rgba(255,255,255,0.1);backdrop-filter:blur(15px);border-radius:24px;padding:40px;max-width:500px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,0.4);border: 1px solid rgba(255,255,255,0.15);}
+        h1{font-size:3.5rem;text-align:center;background:linear-gradient(to right,#60a5fa,#a5f3fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        input,button{width:100%;padding:16px;margin:12px 0;border:none;border-radius:12px;font-size:1.1rem}
+        input{background:rgba(255,255,255,0.15);color:#fff}
+        input::placeholder{color:#cbd5e1}
+        button{background:#0ea5e9;color:#fff;cursor:pointer;font-size:1.3rem;box-shadow: 0 10px 30px rgba(14,165,233,0.5);}
+        button:hover{background:#0c8bd4;transform: translateY(-2px);}
+        #estado{margin-top:15px;color:#fbbf24;font-weight:600;text-align:center}
+        .manual{display:none;background:rgba(255,255,255,0.1);padding:20px;border-radius:16px;margin-top:20px}
+        .resultado{display:none;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:25px;margin-top:40px}
+        .tarifa{background:rgba(255,255,255,0.1);padding:25px;border-radius:16px;text-align:center;transition:0.3s;border: 1px solid rgba(255,255,255,0.1);}
+        .tarifa:hover{transform:translateY(-5px);box-shadow:0 15px 30px rgba(0,0,0,0.4)}
+        .empresa{font-size:1.9rem;font-weight:700}
+        .precio{font-size:3rem;color:#34d399;margin:10px 0}
+        .ahorro.positivo { color: #34d399; } 
+        .ahorro.negativo { color: #f87171; }
+        .ahorro{font-size:1.3rem}
+        .resultado-title{grid-column:1/-1;text-align:center;color:#a5f3fc;margin:30px 0;font-size:2.5rem;}
+        #datos-extraidos { margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; font-size: 0.9rem; }
+    </style>
+    <script src="https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+</head>
+<body>
+<div class="card">
+    <h1>Lugaz</h1>
+    <p style="text-align:center;font-size:1.4rem;margin-bottom:30px">Sube tu factura **solo en formato PDF**</p>
+    
+    <input type="email" id="email" placeholder="Tu email" required>
+    <input type="file" id="factura" accept=".pdf">
+    <button onclick="procesar()">¡Calcular ahorro!</button>
+    
+    <div id="estado">Asegúrate de tener el servidor Python abierto</div>
+    <div id="datos-extraidos" style="display: none;"></div>
+
+    <div class="manual" id="manual">
+        <p>⚠️ No se pudo leer el PDF. Rellena los datos manualmente:</p>
+        <input type="number" id="consumo" placeholder="Consumo kWh/mes (ej: 320)" required>
+        <input type="number" step="0.01" id="potencia" placeholder="Potencia contratada kW (ej: 5.75)" required>
+        <input type="number" step="0.01" id="gasto" placeholder="Gasto actual €/mes (ej: 78.45)" required>
+        <button onclick="enviarDatosManual()">Calcular Manualmente</button>
+    </div>
+
+    <div id="resultado" class="resultado"></div>
+</div>
+
+<script>
